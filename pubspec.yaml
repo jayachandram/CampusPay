@@ -1,0 +1,33 @@
+name: campuspay
+description: "A new Flutter project."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Firebase Packages (Updated to latest compatible versions)
+  firebase_core: ^3.1.1
+  firebase_auth: ^5.7.0
+  firebase_database: ^11.0.1
+
+  # UI and Utility Packages (Updated to latest compatible versions)
+  google_fonts: ^6.2.1
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+# The following section is specific to Flutter packages.
+flutter:
+  uses-material-design: true
+
+  # The 'assets' section must be indented UNDER 'flutter'
+  assets:
+    - assets/images/

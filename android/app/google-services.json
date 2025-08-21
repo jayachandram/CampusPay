@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "113339482370",
+    "firebase_url": "https://ecampus-e338f-default-rtdb.firebaseio.com",
+    "project_id": "ecampus-e338f",
+    "storage_bucket": "ecampus-e338f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:113339482370:android:a4881ce10fde4e545f821b",
+        "android_client_info": {
+          "package_name": "com.android.application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfWsfZd1UvQYkSYoY0eKZhwExQ4Es5AqM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:113339482370:android:1f53c0d77bb7f6205f821b",
+        "android_client_info": {
+          "package_name": "com.example.campuspay"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfWsfZd1UvQYkSYoY0eKZhwExQ4Es5AqM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
