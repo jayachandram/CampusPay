@@ -6,6 +6,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'profile_page.dart';
 import 'transactions_page.dart';
 import 'notifications_page.dart';
+import 'topup_page.dart';
+import 'withdraw_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,7 +19,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _user = FirebaseAuth.instance.currentUser;
 
-  // Use a separate Future for user data and transactions
   Future<DataSnapshot>? _userDataFuture;
   Future<DataSnapshot>? _transactionsFuture;
 
@@ -31,10 +32,10 @@ class _HomePageState extends State<HomePage> {
     if (_user != null) {
       setState(() {
         _userDataFuture =
-            FirebaseDatabase.instance.ref('users/${_user.uid}').get();
+            FirebaseDatabase.instance.ref('users/${_user!.uid}').get();
         _transactionsFuture = FirebaseDatabase.instance
-            .ref('users/${_user.uid}/transactions')
-            .limitToLast(3)
+            .ref('users/${_user!.uid}/transactions')
+            .limitToLast(5) // Showing 5 recent transactions
             .get();
       });
     }
@@ -42,6 +43,17 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _refreshData() async {
     _loadData();
+  }
+
+  // --- THIS FUNCTION FIXES THE ERROR ---
+  /// Safely parses a timestamp String from Firebase (e.g., "2025-08-16T14:30:00Z")
+  /// into a proper DateTime object for sorting and formatting.
+  DateTime _parseTimestamp(dynamic timestamp) {
+    if (timestamp is String) {
+      return DateTime.tryParse(timestamp) ?? DateTime(1970);
+    }
+    // Fallback for any other unexpected type
+    return DateTime(1970);
   }
 
   @override
@@ -58,12 +70,8 @@ class _HomePageState extends State<HomePage> {
               final userData =
                   Map<String, dynamic>.from(snapshot.data!.value as Map);
               return GestureDetector(
-                onTap: () {
-                  Navigator.of(context)
-                      .push(MaterialPageRoute(
-                          builder: (context) => const ProfilePage()))
-                      .then((_) => _refreshData());
-                },
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const ProfilePage())),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -83,19 +91,16 @@ class _HomePageState extends State<HomePage> {
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: InkWell(
-            onTap: () {
-              Navigator.of(context)
-                  .push(MaterialPageRoute(
-                      builder: (context) => const ProfilePage()))
-                  .then((_) => _refreshData());
-            },
-            // The FutureBuilder is removed, we now show the asset directly
+            onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const ProfilePage())),
             child: CircleAvatar(
               backgroundColor: Colors.grey.shade300,
               child: ClipOval(
                 child: Image.asset(
                   'assets/images/default_avatar.png',
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.person),
                 ),
               ),
             ),
@@ -122,7 +127,7 @@ class _HomePageState extends State<HomePage> {
                 if (snapshot.hasData && snapshot.data?.value != null) {
                   final userData =
                       Map<String, dynamic>.from(snapshot.data!.value as Map);
-                  balance = (userData['balance'] ?? 0.0).toDouble();
+                  balance = (userData['balance'] as num? ?? 0.0).toDouble();
                 }
                 return _buildBalanceCard(theme, balance);
               },
@@ -155,7 +160,15 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Expanded(
                   child: FilledButton.icon(
-                    onPressed: () {}, // TODO: Implement Top-up logic
+                    onPressed: () async {
+                      final result = await Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (context) => const TopUpPage()),
+                      );
+                      if (result == true && mounted) {
+                        _refreshData();
+                      }
+                    },
                     icon: const Icon(Icons.add_circle_outline_rounded),
                     label: const Text('Top-up'),
                     style: FilledButton.styleFrom(
@@ -168,7 +181,15 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () {}, // TODO: Implement Withdraw logic
+                    onPressed: () async {
+                      final result = await Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (context) => const WithdrawPage()),
+                      );
+                      if (result == true && mounted) {
+                        _refreshData();
+                      }
+                    },
                     icon: const Icon(Icons.remove_circle_outline_rounded),
                     label: const Text('Withdraw'),
                     style: OutlinedButton.styleFrom(
@@ -218,21 +239,31 @@ class _HomePageState extends State<HomePage> {
             final transactions = transactionsData.entries
                 .map((e) => Map<String, dynamic>.from(e.value as Map))
                 .toList();
-            // Sort by timestamp descending to show the newest first
-            transactions
-                .sort((a, b) => b['timestamp'].compareTo(a['timestamp']));
+
+            // --- USE THE FIX FOR SORTING ---
+            transactions.sort((a, b) {
+              DateTime dateA = _parseTimestamp(a['timestamp']);
+              DateTime dateB = _parseTimestamp(b['timestamp']);
+              return dateB.compareTo(dateA); // Sorts newest first
+            });
 
             return Column(
               children: transactions.map((tx) {
                 final isCredit = tx['type'] == 'credit';
-                final amount = (tx['amount'] ?? 0.0).toDouble();
+                final amount = (tx['amount'] as num? ?? 0.0).toDouble();
+
+                // --- USE THE FIX FOR DISPLAYING THE DATE ---
+                final txDate = _parseTimestamp(tx['timestamp']);
+                final formattedDate =
+                    "${txDate.year}-${txDate.month.toString().padLeft(2, '0')}-${txDate.day.toString().padLeft(2, '0')}";
+
                 return _buildTransactionItem(
                   icon: isCredit
                       ? Icons.add_card_rounded
                       : Icons.fastfood_rounded,
-                  color: isCredit ? Colors.green : Colors.orange,
-                  title: tx['merchantName'] ?? 'N/A',
-                  subtitle: tx['timestamp']?.substring(0, 10) ?? 'No date',
+                  color: isCredit ? Colors.green : Colors.red,
+                  title: tx['merchantName'] ?? 'Top-up',
+                  subtitle: formattedDate,
                   amount:
                       '${isCredit ? '+' : '-'} ₹${amount.abs().toStringAsFixed(2)}',
                   amountColor: isCredit

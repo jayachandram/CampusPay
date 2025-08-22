@@ -1,41 +1,55 @@
-// In android/app/build.gradle
+// In android/app/build.gradle.kts
+
+import java.util.Properties
 
 plugins {
     id("com.android.application")
-    // START: FlutterFire Configuration
     id("com.google.gms.google-services")
-    // END: FlutterFire Configuration
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-// In android/app/build.gradle.kts
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use { stream ->
+        localProperties.load(stream)
+    }
+}
+
+val flutterVersionCode = localProperties.getProperty("flutter.versionCode") ?: "1"
+val flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
 
 android {
     namespace = "com.example.campuspay"
-    // This is the compile SDK version. 
-    // It is often set as a direct assignment in .kts files.
-    compileSdk = 35
 
-    ndkVersion = "27.0.12077973"
+    // ✅ Updated as required by your plugins (path_provider, firebase, etc.)
+    compileSdk = (localProperties.getProperty("flutter.compileSdkVersion") ?: "36").toInt()
+
+    // ✅ Match Firebase & Razorpay requirement
+    ndkVersion = localProperties.getProperty("flutter.ndkVersion") ?: "27.0.12077973"
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        // ✅ Bumped to Java 11 (Java 8 is deprecated and was giving warnings)
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 
     defaultConfig {
         applicationId = "com.example.campuspay"
-        minSdk = 23
-        // THIS IS THE FIX: The property is 'targetSdk', not 'targetSdkVersion'
-        targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+
+        // ✅ Flutter minimum supported is 23, but warning says 24 is safer
+        minSdk = localProperties.getProperty("flutter.minSdkVersion")?.toInt() ?: 24
+
+        // ✅ Align with compileSdk
+        targetSdk = localProperties.getProperty("flutter.targetSdkVersion")?.toInt() ?: 36
+
+        versionCode = flutterVersionCode.toInt()
+        versionName = flutterVersionName
     }
 
     buildTypes {
@@ -44,10 +58,11 @@ android {
         }
     }
 }
+
 flutter {
     source = "../.."
 }
 
 dependencies {
-    // You can add other dependencies here if needed in the future
+    // Flutter manages dependencies automatically
 }

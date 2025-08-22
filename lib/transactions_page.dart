@@ -80,7 +80,7 @@ class _AllTransactionsPageState extends State<AllTransactionsPage> {
                 child: ListTile(
                   leading: CircleAvatar(
                     backgroundColor: (isCredit ? Colors.green : Colors.orange)
-                        .withOpacity(0.1),
+                        .withValues(alpha: 0.1),
                     foregroundColor: isCredit ? Colors.green : Colors.orange,
                     child: Icon(isCredit
                         ? Icons.add_card_rounded

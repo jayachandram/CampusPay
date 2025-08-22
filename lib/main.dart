@@ -25,7 +25,6 @@ class CampusPayApp extends StatelessWidget {
       brightness: Brightness.light,
       primary: const Color(0xFF005A9C),
       secondary: const Color(0xFFE87722),
-      background: const Color(0xFFF4F7FA),
       surface: Colors.white,
     );
 

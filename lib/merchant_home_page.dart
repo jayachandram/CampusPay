@@ -6,6 +6,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'merchant_profile_page.dart';
 import 'transactions_page.dart';
 import 'notifications_page.dart';
+import 'merchant_withdraw_page.dart';
 
 class MerchantHomePage extends StatefulWidget {
   const MerchantHomePage({super.key});
@@ -78,8 +79,8 @@ class _MerchantHomePageState extends State<MerchantHomePage> {
             child: CircleAvatar(
               backgroundColor: Colors.grey.shade300,
               child: ClipOval(
-                  child: Image.asset('assets/images/default_avatar.png',
-                      fit: BoxFit.cover)),
+                                     child: Image.asset('assets/images/default_avatar.jpg',
+                       fit: BoxFit.cover)),
             ),
           ),
         ),
@@ -133,19 +134,26 @@ class _MerchantHomePageState extends State<MerchantHomePage> {
                 style: theme.textTheme.displayMedium?.copyWith(
                     color: Colors.white, fontWeight: FontWeight.bold)),
             const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: () {}, // TODO: Implement Withdraw logic
-                icon: const Icon(Icons.account_balance_wallet_outlined),
-                label: const Text('Withdraw Earnings'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: theme.colorScheme.surface,
-                  foregroundColor: theme.colorScheme.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
+                         SizedBox(
+               width: double.infinity,
+               child: FilledButton.icon(
+                 onPressed: () async {
+                   final result = await Navigator.of(context).push(
+                     MaterialPageRoute(builder: (context) => const MerchantWithdrawPage()),
+                   );
+                   if (result == true) {
+                     _refreshData(); // Refresh data after successful withdrawal
+                   }
+                 },
+                 icon: const Icon(Icons.account_balance_wallet_outlined),
+                 label: const Text('Withdraw Earnings'),
+                 style: FilledButton.styleFrom(
+                   backgroundColor: theme.colorScheme.surface,
+                   foregroundColor: theme.colorScheme.primary,
+                   padding: const EdgeInsets.symmetric(vertical: 12),
+                 ),
+               ),
+             ),
           ],
         ),
       ),
@@ -218,7 +226,7 @@ class _MerchantHomePageState extends State<MerchantHomePage> {
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         leading: CircleAvatar(
-            backgroundColor: color.withOpacity(0.1),
+            backgroundColor: color.withValues(alpha: 0.1),
             foregroundColor: color,
             child: Icon(icon)),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),

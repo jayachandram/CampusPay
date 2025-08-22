@@ -34,9 +34,11 @@ class _SignUpPageState extends State<SignUpPage> {
       }
     } on FirebaseAuthException catch (e) {
       // Handle errors (e.g., show a snackbar)
-      final snackBar =
-          SnackBar(content: Text('Failed to sign up: ${e.message}'));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      if (mounted) {
+        final snackBar =
+            SnackBar(content: Text('Failed to sign up: ${e.message}'));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
     } finally {
       if (mounted) {
         setState(() {

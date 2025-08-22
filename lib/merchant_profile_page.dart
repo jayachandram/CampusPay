@@ -247,7 +247,7 @@ class _MerchantProfilePageState extends State<MerchantProfilePage> {
           radius: 50,
           backgroundColor: Colors.grey.shade300,
           child: ClipOval(
-              child: Image.asset('assets/images/default_avatar.png',
+              child: Image.asset('assets/images/default_avatar.jpg',
                   fit: BoxFit.cover, width: 100, height: 100)),
         ),
         const SizedBox(height: 12),

@@ -66,6 +66,13 @@ class _MerchantLoginPageState extends State<MerchantLoginPage> {
         errorMessage = "An error occurred: ${e.message}";
       }
       _showFeedback(errorMessage);
+    } catch (e) {
+      // Handle any other errors including the PigeonUserDetails error
+      String errorMessage = "Authentication error. Please try again later.";
+      if (e.toString().contains('PigeonUserDetails')) {
+        errorMessage = "Authentication service temporarily unavailable. Please try again.";
+      }
+      _showFeedback(errorMessage);
     } finally {
       if (mounted) {
         setState(() {

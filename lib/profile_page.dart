@@ -264,7 +264,7 @@ class _ProfilePageState extends State<ProfilePage> {
           // Always show the local asset image
           child: ClipOval(
             child: Image.asset(
-              'assets/images/default_avatar.png',
+                              'assets/images/default_avatar.jpg',
               fit: BoxFit.cover,
               width: 100,
               height: 100,
